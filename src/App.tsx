@@ -30,6 +30,7 @@ function App() {
           isWorking={isWorking}
           currentEntry={activeEntry}
           todayTotal={todayTotal}
+          workHoursPerDay={8}
         />
 
         {/* Action Buttons */}
