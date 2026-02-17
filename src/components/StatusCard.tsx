@@ -1,9 +1,10 @@
 import { Clock } from 'lucide-react';
-import { formatDuration, formatTime } from '../utils';
+import type { TimeEntry } from '../types';
+import { formatDuration } from '../utils';
 
 interface StatusCardProps {
   isWorking: boolean;
-  currentEntry: { start: number } | null;
+  currentEntry: TimeEntry | null;
   todayTotal: number;
 }
 
@@ -21,7 +22,7 @@ export const StatusCard = ({ isWorking, currentEntry, todayTotal }: StatusCardPr
         {currentEntry && (
           <div className="flex items-center gap-2 text-gray-500">
             <Clock size={16} />
-            <span className="text-sm">Entrada: {formatTime(currentEntry.start)}</span>
+            <span className="text-sm">Entrada: {new Date(currentEntry.start).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
           </div>
         )}
       </div>

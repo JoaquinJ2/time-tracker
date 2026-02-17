@@ -1,14 +1,57 @@
-import type { WorkRecords, TimeEntry } from '../types';
+import type { WorkRecords, TimeEntry, DayRecord } from '../types';
 
 const STORAGE_KEY = 'time-tracker-records';
 
-export const getRecords = (): WorkRecords => {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : {};
+const isValidTimeEntry = (entry: unknown): entry is TimeEntry => {
+  return (
+    typeof entry === 'object' &&
+    entry !== null &&
+    typeof (entry as TimeEntry).start === 'number' &&
+    ((entry as TimeEntry).end === null || typeof (entry as TimeEntry).end === 'number')
+  );
 };
 
-export const saveRecords = (records: WorkRecords): void => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+const isValidDayRecord = (record: unknown): record is DayRecord => {
+  if (typeof record !== 'object' || record === null) return false;
+  const r = record as DayRecord;
+  return (
+    typeof r.date === 'string' &&
+    Array.isArray(r.entries) &&
+    r.entries.every(isValidTimeEntry)
+  );
+};
+
+const isValidWorkRecords = (data: unknown): data is WorkRecords => {
+  if (typeof data !== 'object' || data === null) return false;
+  const records = data as WorkRecords;
+  return Object.values(records).every(isValidDayRecord);
+};
+
+export const getRecords = (): WorkRecords => {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (!data) return {};
+    
+    const parsed = JSON.parse(data);
+    if (!isValidWorkRecords(parsed)) {
+      console.warn('Invalid data in localStorage, resetting...');
+      return {};
+    }
+    return parsed;
+  } catch (error) {
+    console.error('Failed to load records from localStorage:', error);
+    return {};
+  }
+};
+
+export const saveRecords = (records: WorkRecords): boolean => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    return true;
+  } catch (error) {
+    console.error('Failed to save records to localStorage:', error);
+    return false;
+  }
 };
 
 export const getToday = (): string => {
@@ -28,14 +71,20 @@ export const getActiveEntry = (records: WorkRecords): TimeEntry | null => {
   return activeEntries.length > 0 ? activeEntries[activeEntries.length - 1] : null;
 };
 
-export const calculateDayTotal = (entries: TimeEntry[]): number => {
-  return entries.reduce((total, entry) => {
+export const calculateDayTotal = (entries: TimeEntry[], activeEntry?: TimeEntry | null): number => {
+  let total = entries.reduce((sum, entry) => {
     if (entry.end === null) {
-      // If entry is still active, count up to now
-      return total + (Date.now() - entry.start);
+      return sum + (Date.now() - entry.start);
     }
-    return total + (entry.end - entry.start);
+    return sum + (entry.end - entry.start);
   }, 0);
+  
+  // Add live time for active entry if not already in entries
+  if (activeEntry && !entries.includes(activeEntry)) {
+    total += Date.now() - activeEntry.start;
+  }
+  
+  return total;
 };
 
 export const formatDuration = (ms: number): string => {

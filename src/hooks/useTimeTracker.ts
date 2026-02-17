@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { WorkRecords, TimeEntry } from '../types';
 import {
   getRecords,
@@ -15,21 +15,32 @@ export const useTimeTracker = () => {
   const [todayTotal, setTodayTotal] = useState<number>(0);
   const [todayEntries, setTodayEntries] = useState<TimeEntry[]>([]);
   const [weeklyData, setWeeklyData] = useState<{ date: string; hours: number }[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  // Use ref to track active entry for interval
+  const activeEntryRef = useRef<TimeEntry | null>(null);
+  activeEntryRef.current = activeEntry;
 
   // Load records from localStorage on mount
   useEffect(() => {
-    const loadedRecords = getRecords();
-    setRecords(loadedRecords);
-    
-    const today = getToday();
-    const todayRecord = loadedRecords[today];
-    
-    if (todayRecord) {
-      setTodayEntries(todayRecord.entries);
-      setTodayTotal(calculateDayTotal(todayRecord.entries));
+    try {
+      const loadedRecords = getRecords();
+      setRecords(loadedRecords);
+      
+      const today = getToday();
+      const todayRecord = loadedRecords[today];
+      
+      if (todayRecord) {
+        setTodayEntries(todayRecord.entries);
+        setTodayTotal(calculateDayTotal(todayRecord.entries));
+      }
+      
+      setActiveEntry(getActiveEntry(loadedRecords));
+      setError(null);
+    } catch (err) {
+      setError('Failed to load records');
+      console.error(err);
     }
-    
-    setActiveEntry(getActiveEntry(loadedRecords));
   }, []);
 
   // Update weekly data
@@ -40,19 +51,21 @@ export const useTimeTracker = () => {
       const totalMs = dayRecord ? calculateDayTotal(dayRecord.entries) : 0;
       return {
         date,
-        hours: Math.round((totalMs / 3600000) * 100) / 100, // Convert to hours with 2 decimals
+        hours: Math.round((totalMs / 3600000) * 100) / 100,
       };
     });
     setWeeklyData(data);
   }, [records, todayTotal]);
 
-  // Update active entry and today total periodically
+  // Update today total every second when working
   useEffect(() => {
     if (!activeEntry) return;
     
     const interval = setInterval(() => {
-      setTodayTotal(calculateDayTotal(todayEntries));
-    }, 60000); // Update every minute
+      // Calculate using activeEntry for live time
+      const total = calculateDayTotal(todayEntries, activeEntryRef.current);
+      setTodayTotal(total);
+    }, 1000); // Update every second for live timer
     
     return () => clearInterval(interval);
   }, [activeEntry, todayEntries]);
@@ -75,11 +88,17 @@ export const useTimeTracker = () => {
       entries: [...updatedRecords[today].entries, newEntry],
     };
     
-    saveRecords(updatedRecords);
+    const saved = saveRecords(updatedRecords);
+    if (!saved) {
+      setError('Failed to save records');
+      return;
+    }
+    
     setRecords(updatedRecords);
     setActiveEntry(newEntry);
     setTodayEntries(updatedRecords[today].entries);
-    setTodayTotal(calculateDayTotal(updatedRecords[today].entries));
+    setTodayTotal(calculateDayTotal(updatedRecords[today].entries, newEntry));
+    setError(null);
   }, [records]);
 
   const clockOut = useCallback(() => {
@@ -100,13 +119,19 @@ export const useTimeTracker = () => {
         entries,
       };
       
-      saveRecords(updatedRecords);
+      const saved = saveRecords(updatedRecords);
+      if (!saved) {
+        setError('Failed to save records');
+        return;
+      }
+      
       setRecords(updatedRecords);
       setTodayEntries(entries);
       setTodayTotal(calculateDayTotal(entries));
     }
     
     setActiveEntry(null);
+    setError(null);
   }, [activeEntry, records]);
 
   return {
@@ -117,5 +142,6 @@ export const useTimeTracker = () => {
     weeklyData,
     clockIn,
     clockOut,
+    error,
   };
 };
