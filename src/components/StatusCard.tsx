@@ -1,4 +1,4 @@
-import { Clock } from 'lucide-react';
+import { Clock, AlertCircle } from 'lucide-react';
 import { useMemo } from 'react';
 import type { TimeEntry } from '../types';
 import { formatDuration } from '../utils';
@@ -75,22 +75,37 @@ export const StatusCard = ({
       </div>
 
       {/* Hours Info */}
-      <div className="grid grid-cols-3 gap-4 mt-4">
+      <div className="grid grid-cols-2 gap-4 mt-4">
         <div className="text-center p-3 bg-gray-50 rounded-xl">
           <div className="text-lg font-semibold text-gray-800">{DEFAULT_WORK_HOURS}h</div>
           <div className="text-xs text-gray-500">Objetivo</div>
         </div>
         <div className="text-center p-3 bg-gray-50 rounded-xl">
-          <div className={`text-lg font-semibold ${isOvertime ? 'text-red-600' : 'text-blue-600'}`}>
-            {isOvertime ? formatDuration(overtime) : formatDuration(Math.max(0, remainingDisplay))}
+          <div className={`text-lg font-semibold ${isOvertime ? 'text-blue-600' : 'text-gray-800'}`}>
+            {formatDuration(Math.max(0, remainingDisplay))}
           </div>
-          <div className="text-xs text-gray-500">{isOvertime ? 'Extra' : 'Restante'}</div>
+          <div className="text-xs text-gray-500">Restante</div>
         </div>
-        <div className="text-center p-3 bg-gray-50 rounded-xl">
-          <div className={`text-lg font-semibold ${isOvertime ? 'text-red-600' : 'text-gray-400'}`}>
-            {isOvertime ? `+${formatDuration(overtime)}` : '0m'}
+      </div>
+
+      {/* Overtime - Always visible, prominent */}
+      <div className={`mt-4 p-4 rounded-xl border-2 ${
+        isOvertime 
+          ? 'bg-red-50 border-red-300' 
+          : 'bg-gray-50 border-gray-200'
+      }`}>
+        <div className="flex items-center justify-center gap-2">
+          {isOvertime ? (
+            <AlertCircle className="text-red-500" size={24} />
+          ) : (
+            <Clock className="text-gray-400" size={24} />
+          )}
+          <div className="text-center">
+            <div className={`text-2xl font-bold ${isOvertime ? 'text-red-600' : 'text-gray-400'}`}>
+              {formatDuration(overtime)}
+            </div>
+            <div className="text-xs text-gray-500">Horas Extra</div>
           </div>
-          <div className="text-xs text-gray-500">Horas extra</div>
         </div>
       </div>
     </div>
