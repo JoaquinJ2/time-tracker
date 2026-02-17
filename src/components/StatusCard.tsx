@@ -62,7 +62,7 @@ export const StatusCard = ({
       <div className="mt-4">
         <div className="flex justify-between text-sm mb-1">
           <span className="text-gray-600">Progreso</span>
-          <span className="font-medium">{isNaN(progress) ? 0 : progress.toFixed(0)}%</span>
+          <span className="font-medium">{isNaN(progress) ? 0 : Math.max(progress, 0).toFixed(0)}%</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3">
           <div 
@@ -82,7 +82,7 @@ export const StatusCard = ({
         </div>
         <div className="text-center p-3 bg-gray-50 rounded-xl">
           <div className={`text-lg font-semibold ${isOvertime ? 'text-red-600' : 'text-blue-600'}`}>
-            {isOvertime ? `-${formatDuration(overtime)}` : formatDuration(Math.max(0, remainingDisplay))}
+            {isOvertime ? formatDuration(overtime) : formatDuration(Math.max(0, remainingDisplay))}
           </div>
           <div className="text-xs text-gray-500">{isOvertime ? 'Extra' : 'Restante'}</div>
         </div>
