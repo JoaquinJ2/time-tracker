@@ -57,7 +57,7 @@ export const WeeklyChart = ({ data, darkMode = false }: WeeklyChartProps) => {
               {data.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
-                  fill={entry.hours > 0 ? '#22c55e' : darkMode ? '#374151' : '#e5e7eb'} 
+                  fill={entry.hours > 0 ? (darkMode ? '#4ade80' : '#22c55e') : darkMode ? '#374151' : '#e5e7eb'} 
                 />
               ))}
             </Bar>
