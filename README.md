@@ -1,73 +1,77 @@
-# React + TypeScript + Vite
+# ⏱️ Time Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern work time tracking application built with React, TypeScript, and TailwindCSS. Track your work hours easily with a clean, intuitive interface.
 
-Currently, two official plugins are available:
+![Time Tracker](./screenshot.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- **Clock In/Out** - Register your start and end times with a single click
+- **Multiple Sessions** - Support for multiple work intervals per day
+- **Automatic Calculation** - Total hours computed automatically
+- **Daily Summary** - View all intervals for the current day
+- **Weekly Chart** - Visual representation of hours worked over the last 7 days
+- **Local Storage** - All data persists in your browser's localStorage (no backend required)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+- **React** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **TailwindCSS** - Modern styling
+- **Recharts** - Charts and graphs
+- **date-fns** - Date manipulation
+- **Lucide React** - Icons
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📦 Installation
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+```bash
+# Clone the repository
+git clone https://github.com/JoaquinJ2/time-tracker.git
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Navigate to the project
+cd time-tracker
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Usage
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. Click **"Entrar"** (Enter) to clock in and start tracking
+2. Click **"Salir"** (Exit) to clock out and end the session
+3. You can have multiple sessions in the same day
+4. All data is automatically saved to localStorage
+5. Refresh the page - your data will still be there
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 📱 Access
+
+The app is running on port 5173. Access it at:
+- Local: http://localhost:5173
+- Network: http://YOUR_IP:5173
+
+## 📂 Project Structure
+
 ```
+src/
+├── components/       # UI components
+│   ├── ActionButtons.tsx
+│   ├── EntriesList.tsx
+│   ├── StatusCard.tsx
+│   └── WeeklyChart.tsx
+├── hooks/           # Custom React hooks
+│   └── useTimeTracker.ts
+├── types/           # TypeScript types
+│   └── index.ts
+├── utils/           # Utility functions
+│   └── index.ts
+├── App.tsx         # Main app component
+└── main.tsx        # Entry point
+```
+
+## 📝 License
+
+MIT
