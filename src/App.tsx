@@ -6,12 +6,29 @@ import { EntriesList } from './components/EntriesList';
 import { WeeklyChart } from './components/WeeklyChart';
 import { Moon, Sun } from 'lucide-react';
 
-function App() {
-  const [darkMode, setDarkMode] = useState(() => {
+function getInitialDarkMode(): boolean {
+  // Try localStorage first
+  try {
     const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
-  });
+    if (saved !== null) {
+      return JSON.parse(saved);
+    }
+  } catch {
+    // If localStorage is invalid, ignore and fall through to system preference
+  }
+  
+  // Fallback to system preference
+  if (typeof window !== 'undefined') {
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+  }
+  
+  return false;
+}
 
+function App() {
+  const [darkMode, setDarkMode] = useState(getInitialDarkMode);
+
+  // Sync dark mode class on mount and when state changes
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
     if (darkMode) {
@@ -20,6 +37,21 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
+
+  // Sync initial state on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('darkMode');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch {
+        // Ignore invalid JSON
+      }
+    }
+  }, []);
 
   const {
     activeEntry,
